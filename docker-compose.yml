@@ -1,0 +1,36 @@
+version: '2'
+services:
+  app:
+    container_name: svg-server
+    image: rvolt/dev-stack:lamp-mysql
+    ports:
+      - 4280:80
+    volumes:
+      - ./www:/var/www/html:rw
+    restart: 'no'
+  db:
+    container_name: svg-db
+    image: mysql:5.5
+    ports:
+      - 4281:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpwd
+      - MYSQL_DATABASE=symbols_db  
+      - MYSQL_USER=dbuser
+      - MYSQL_PASSWORD=dbuserpwd
+    restart: 'no'
+  pma:
+    container_name: svg-pma
+    image: phpmyadmin/phpmyadmin
+    environment:
+     - PMA_ARBITRARY=1
+     - PMA_HOST=svg-db
+     - PMA_USER=dbuser
+     - PMA_PASSWORD=dbuserpwd
+    ports:
+      - 4282:80
+    links:
+      - db
+    depends_on:
+      - db
+    restart: 'no'
