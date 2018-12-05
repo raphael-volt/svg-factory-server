@@ -45,15 +45,25 @@ $pdo = new PDO("mysql:host=svg-db; dbname=symbols_db;", "dbuser", "dbuserpwd", a
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 if ($method == "POST" || $method == "PUT") {
-    $sym = json_decode(file_get_contents('php://input'));
+    $json = file_get_contents('php://input');
+    $sym = json_decode($json);
+    if(! property_exists($sym, "name"))
+       $sym->name = "";
     if ($method == "POST") {
-        $q = "INSERT INTO symbol (name, data, width, height) VALUES (?, ?, ?, ?);";
+        $q = "INSERT INTO symbol (name, data, width, height, holes, pathLength) VALUES (?, ?, ?, ?, ?, ?);";
         $s = $pdo->prepare($q);
-        $s->bindValue(1, $sym->name, PDO::PARAM_STR);
-        $s->bindValue(2, $sym->data, PDO::PARAM_STR);
-        $s->bindValue(3, $sym->width, PDO::PARAM_INT);
-        $s->bindValue(4, $sym->height, PDO::PARAM_INT);
-        $s->execute();
+        $s->bindValue(1, $sym->name);
+        $s->bindValue(2, $sym->data);
+        $s->bindValue(3, $sym->width);
+        $s->bindValue(4, $sym->height);
+        $s->bindValue(5, $sym->holes);
+        $s->bindValue(6, $sym->pathLength);
+        try {
+            $s->execute();            
+        } catch (PDOException $e) {
+            // something wrong
+            $m = $e->getMessage();
+        }
         $sym = new stdClass();
         $sym->id = $pdo->lastInsertId('symbol');
         outputJSON($sym);
