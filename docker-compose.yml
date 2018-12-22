@@ -21,7 +21,7 @@ services:
     restart: 'no'
   pma:
     container_name: svg-pma
-    image: phpmyadmin/phpmyadmin
+    image: phpmyadmin/phpmyadmin:latest 
     environment:
      - PMA_ARBITRARY=1
      - PMA_HOST=svg-db
